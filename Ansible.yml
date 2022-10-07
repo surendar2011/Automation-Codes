@@ -1,0 +1,99 @@
+---
+    hosts: localhost
+    Become: yes
+    Name: controller
+    Tasks:
+      -  Name: Installing Java, Jenkins on controller
+         script: jenkins.sh
+      -  hosts: worker
+    	 Become: yes
+    	 Name: Kun Nodes
+    Tasks:
+      -  Name: Installing Docker, Java, Kubernetes on controller
+         script: worker.sh
+
+
+---
+ - hosts: localhost
+   become: yes
+   name: controller
+   task:
+    - name: Installing Java, Jenkins on controller
+      script: jenkins.sh
+
+$ sudo apt update
+$ sudo apt install software-properties-common
+$ sudo add-apt-repository --yes --update ppa:ansible/ansible
+$ sudo apt install ansible
+
+
+$ sudo apt-get install python3
+$ cd .ssh
+$ ssh-keygen
+$ ls 
+$ id_rsa.pub
+$ sudo nano /etc/ansible/hosts
+
+$ ansible -m ping all      
+
+go inside ansible
+sudo nano play.yml 
+---
+
+ - hosts: slave1
+   sudo: yes
+   name: play1
+   tasks:
+    - name: Install Apache
+      apt: name=apache2 state=latest
+    - name: Adding a website
+      script: hello.sh 
+
+
+ - hosts: slave2
+   sudo: yes
+   name: play2
+   tasks:
+    - name: Install nginx
+      apt: name=nginx state=latest
+
+
+$ sudo nano hello.sh 
+#!/bin/sh
+echo "hello world" > /var/www/html/1.html
+
+sudo chmod -R 777 hello.sh 
+
+Ansible roles:
+cd /etc/ansible/roles
+sudo apt install tree
+sudo ansible-galaxy init web --offline
+tree web
+cd web 
+cd tasks
+sudo nano main.yml
+- include: install.yml
+- include: configure.yml
+- include: service.yml
+
+sudo nano install.yml
+---
+  - name: Install apache2
+    apt: name=apache2 state=latest
+
+sudo nano configure.yml
+---
+  - name: configure website
+    copy: src=index.html dest=/var/www/html
+
+sudo nano service.yml
+---
+  - name: start apache2 service
+    service: name=apache2 state=started
+
+sudo nano site.yml
+---
+  - hosts: servers
+    roles:
+      - web
+
